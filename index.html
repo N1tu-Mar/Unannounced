@@ -657,7 +657,31 @@
           </div>
 
           <div id="apply-form-wrap" class="stagger" style="animation-delay: 0.18s;">
-            <form class="apply-form" id="apply-form" novalidate autocomplete="off">
+            <!-- ⚠️ REPLACE the action URL below with your actual Formspree endpoint -->
+            <form
+              class="apply-form"
+              id="apply-form"
+              method="POST"
+              action="https://formspree.io/f/YOUR_FORM_ID"
+              novalidate
+              autocomplete="off"
+            >
+
+              <!-- Formspree: nicer subject line in the inbox -->
+              <input type="hidden" name="_subject" value="New application — (un)announced." />
+
+              <!-- Formspree honeypot: bots fill this, humans don't -->
+              <input
+                type="text"
+                name="_gotcha"
+                tabindex="-1"
+                autocomplete="off"
+                aria-hidden="true"
+                style="display:none; position:absolute; left:-9999px;"
+              />
+
+              <!-- Error message (shown on network/server failure) -->
+              <div id="apply-error" class="apply-error" role="alert" aria-live="assertive"></div>
 
               <div class="form-field">
                 <label class="form-label" for="apply-name">Name</label>

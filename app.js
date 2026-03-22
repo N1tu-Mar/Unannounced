@@ -249,28 +249,85 @@ function initNavLinks() {
 
 /* ─── APPLY FORM ─────────────────────────────────────────────── */
 function initApplyForm() {
-  const form       = document.getElementById('apply-form');
-  const formWrap   = document.getElementById('apply-form-wrap');
-  const successMsg = document.getElementById('apply-success');
+  const form      = document.getElementById('apply-form');
+  const formWrap  = document.getElementById('apply-form-wrap');
+  const successEl = document.getElementById('apply-success');
+  const errorEl   = document.getElementById('apply-error');
+  const submitBtn = form ? form.querySelector('.submit-btn') : null;
   if (!form) return;
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const data = {
-      name:     form.elements['name'].value,
-      email:    form.elements['email'].value,
-      creates:  form.elements['creates'].value,
-      link:     form.elements['link'].value,
-      why:      form.elements['why'].value,
-    };
-    console.log('[un)announced.] Application:', data);
+  // ─────────────────────────────────────────────────────────────
+  // ⚠️  REPLACE the URL below with your actual Formspree endpoint.
+  //     It looks like: https://formspree.io/f/xabc1234
+  //     You get it after creating a form at https://formspree.io
+  // ─────────────────────────────────────────────────────────────
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
 
-    formWrap.style.opacity = '0';
+  function setSubmitting(isLoading) {
+    if (!submitBtn) return;
+    submitBtn.disabled    = isLoading;
+    submitBtn.textContent = isLoading ? 'sending...' : 'submit';
+  }
+
+  function showError(msg) {
+    if (!errorEl) return;
+    errorEl.textContent = msg;
+    errorEl.style.display = 'block';
+    // Scroll error into view on mobile
+    errorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function clearError() {
+    if (!errorEl) return;
+    errorEl.textContent  = '';
+    errorEl.style.display = 'none';
+  }
+
+  function showSuccess() {
+    formWrap.style.opacity    = '0';
     formWrap.style.transition = 'opacity 0.3s ease';
     setTimeout(() => {
       formWrap.style.display = 'none';
-      successMsg.classList.add('visible');
+      successEl.classList.add('visible');
     }, 300);
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearError();
+    setSubmitting(true);
+
+    // Build payload with readable field labels for the email
+    const payload = {
+      name:                   form.elements['name'].value.trim(),
+      email:                  form.elements['email'].value.trim(),
+      'what they create':     form.elements['creates'].value.trim(),
+      'link to work':         form.elements['link'].value.trim(),
+      'why (un)announced':    form.elements['why'].value.trim(),
+    };
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method:  'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept':        'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        showSuccess();
+      } else {
+        // Formspree returns { error: "..." } on 4xx/5xx
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Submission failed (${res.status}). Please try again.`);
+      }
+    } catch (err) {
+      // Network failure or server error
+      showError(err.message || 'Something went wrong. Please check your connection and try again.');
+      setSubmitting(false);
+    }
   });
 }
 
