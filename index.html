@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="(un)announced. — a Gen Z media brand spotlighting builders, creators, entrepreneurs, and thinkers before they're everywhere." />
+  <title>(un)announced. — before it's everywhere</title>
+
+  <!-- ── EXTERNAL FONTS ── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Anonymous+Pro:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <!-- ── EXTERNAL CSS ── -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- ══════════════════════════════════════════════════════════
+       INTERNAL CSS — page-specific overrides and one-off styles
+       that live here rather than the global stylesheet
+  ══════════════════════════════════════════════════════════ -->
+  <style>
+    /* Home page body lock */
+    body.no-scroll { overflow-y: hidden; }
+
+    /* About page subtle accent rule */
+    .about-accent-line {
+      width: 48px;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.5;
+      margin-bottom: 40px;
+    }
+
+    /* Concept page left ghost text (decorative) */
+    .concept-ghost {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      transform-origin: left center;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      color: rgba(107,140,206,0.18);
+      text-transform: uppercase;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Rooms page: overlay label during CRT state */
+    .rooms-system-label {
+      position: absolute;
+      top: calc(var(--nav-height) + 20px);
+      left: 40px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: rgba(107,140,206,0.3);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    /* Team page header detail */
+    .team-header-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      margin-bottom: 10px;
+    }
+
+    /* Room detail: left column sticky on desktop */
+    @media (min-width: 769px) {
+      .room-door-col { position: sticky; top: 120px; }
+    }
+
+    /* Apply form success animation */
+    .success-msg.visible {
+      animation: fadeUp 0.5s ease-out forwards;
+    }
+
+    /* Subtle horizontal rule divider */
+    .h-rule {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      margin: 48px 0;
+    }
+
+    /* Doors state centering fix */
+    .doors-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: calc(var(--nav-height) + 48px) 40px 80px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Skip link for accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- ── AMBIENT EFFECTS ─────────────────────────────────────── -->
+  <div class="scanlines"  aria-hidden="true"></div>
+  <div class="corner corner-tl" aria-hidden="true"></div>
+  <div class="corner corner-tr" aria-hidden="true"></div>
+  <div class="corner corner-bl" aria-hidden="true"></div>
+  <div class="corner corner-br" aria-hidden="true"></div>
+
+  <div class="build-stamp" aria-hidden="true">
+    v0.1.0 // ALPHA<br>
+    [RESTRICTED ACCESS]<br>
+    SYS::INIT_OK
+  </div>
+
+  <!-- Uses inline style to set initial opacity before JS kicks in -->
+  <div class="page-indicator" id="page-indicator" aria-hidden="true" style="opacity: 0.45;">
+    // HOME
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       NAVIGATION
+  ══════════════════════════════════════════════════════════ -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <button class="logo" aria-label="(un)announced. — go home">
+      <span class="logo-u">(u)</span><span class="logo-a">a.</span>
+    </button>
+
+    <!-- Desktop pill nav -->
+    <ul class="nav-pills" role="list">
+      <li><a data-page="home"        tabindex="0" aria-label="Home"    class="active">home</a></li>
+      <li><a data-page="about"       tabindex="0" aria-label="About"            >about</a></li>
+      <li><a data-page="concept"     tabindex="0" aria-label="Concept"          >concept</a></li>
+      <li><a data-page="rooms"       tabindex="0" aria-label="Rooms"            >rooms</a></li>
+      <li><a data-page="team"        tabindex="0" aria-label="Team"             >team</a></li>
+      <li><a data-page="apply"       tabindex="0" aria-label="Apply"            >apply</a></li>
+    </ul>
+
+    <!-- Mobile hamburger -->
+    <button class="hamburger" aria-label="Open navigation menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile full-screen overlay -->
+  <div class="mobile-overlay" role="dialog" aria-label="Navigation menu">
+    <a data-page="home"    tabindex="0">home</a>
+    <a data-page="about"   tabindex="0">about</a>
+    <a data-page="concept" tabindex="0">concept</a>
+    <a data-page="rooms"   tabindex="0">rooms</a>
+    <a data-page="team"    tabindex="0">team</a>
+    <a data-page="apply"   tabindex="0">apply</a>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       MAIN CONTENT — all pages
+  ══════════════════════════════════════════════════════════ -->
+  <main id="main-content">
+
+    <!-- ── PAGE: HOME ─────────────────────────────────────────── -->
+    <div id="page-home" class="page" role="region" aria-label="Home">
+      <section class="hero">
+        <div class="wordmark-wrap">
+          <h1 class="wordmark" aria-label="(un)announced.">
+            <span class="un">(un)</span><span class="main">announced.</span><span
+              class="cursor-blink"
+              aria-hidden="true">|</span>
+          </h1>
+          <p class="tagline">before it's everywhere</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- ── PAGE: ABOUT ────────────────────────────────────────── -->
+    <div id="page-about" class="page" role="region" aria-label="About (un)announced.">
+      <div class="container pt-nav pb-xl">
+
+        <!-- Header — staggered entrance; uses inline animation-delay -->
+        <div class="stagger" style="animation-delay: 0.05s;">
+          <p class="page-label">about</p>
+          <p class="page-logo-sub" aria-label="(un)announced.">
+            <span class="un">(un)</span><span class="main">announced.</span>
+          </p>
+        </div>
+
+        <div class="about-accent-line stagger" style="animation-delay: 0.18s;" aria-hidden="true"></div>
+
+        <!-- Three pillars -->
+        <div class="pillars-grid">
+
+          <article class="pillar stagger" style="animation-delay: 0.22s;">
+            <p class="pillar-num">01 // culture</p>
+            <h2 class="pillar-title">culture</h2>
+            <p class="pillar-text">
+              (un)announced is a Gen Z-led media brand for Gen Z, by Gen Z.
+              We exist at the intersection of creativity and ambition —
+              where culture is made before it hits the mainstream.
+            </p>
+          </article>
+
+          <article class="pillar stagger" style="animation-delay: 0.38s;">
+            <p class="pillar-num">02 // spotlight</p>
+            <h2 class="pillar-title">spotlight</h2>
+            <p class="pillar-text">
+              We spotlight builders, creators, entrepreneurs and thinkers
+              before they're everywhere. The underrated. The quietly obsessed.
+              The ones building something real.
+            </p>
+          </article>
+
+          <article class="pillar stagger" style="animation-delay: 0.54s;">
+            <p class="pillar-num">03 // the shift</p>
+            <h2 class="pillar-title">the shift</h2>
+            <p class="pillar-text">
+              We're focused on the shift — how visibility, networking and
+              credibility are changing because of young people. This generation
+              isn't waiting for permission.
+            </p>
+          </article>
+
+        </div>
+
+        <hr class="h-rule stagger" style="animation-delay: 0.62s;" aria-hidden="true" />
+
+        <!-- CTA line -->
+        <p class="stagger" style="
+          animation-delay: 0.7s;
+          font-family: var(--font-mono);
+          font-size: 0.85rem;
+          color: rgba(232,228,223,0.38);
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        ">
+          a digital content house &nbsp;·&nbsp; multiple rooms &nbsp;·&nbsp; one voice
+        </p>
+
+      </div>
+    </div>
+
+    <!-- ── PAGE: CONCEPT ──────────────────────────────────────── -->
+    <div id="page-concept" class="page" role="region" aria-label="Our Concept">
+      <div class="container pt-nav pb-xl" style="position: relative;">
+
+        <!-- Decorative ghost text — inline style for exact positioning -->
+        <span class="concept-ghost" aria-hidden="true">
+          DIGITAL CONTENT HOUSE // GEN Z // (UN)ANNOUNCED.
+        </span>
+
+        <div class="concept-inner">
+
+          <h1 class="concept-title stagger" style="animation-delay: 0.1s;">
+            <span>our</span> <span>concept</span>
+          </h1>
+
+          <div class="concept-body">
+            <p class="stagger" style="animation-delay: 0.22s;">
+              (un)announced wants to curate high-quality Gen Z voices.
+            </p>
+            <p class="stagger" style="animation-delay: 0.34s;">
+              Across the internet, a new generation of thinkers, builders,
+              and storytellers is emerging — but too often their ideas get
+              lost in the noise.
+            </p>
+            <p class="stagger" style="animation-delay: 0.46s;">
+              (un)announced is a Gen Z media brand built to surface those
+              voices. At the heart of it is our digital content house — a
+              collaborative space made up of themed rooms, each dedicated
+              to a different form of content.
+            </p>
+            <p class="stagger" style="animation-delay: 0.58s;">
+              From ideas and entrepreneurship to culture, storytelling,
+              and design, every room showcases creators shaping the
+              conversations of our generation.
+            </p>
+          </div>
+
+          <!-- Inline style: exact accent color with opacity -->
+          <p class="stagger" style="
+            animation-delay: 0.72s;
+            margin-top: 48px;
+            font-size: 0.78rem;
+            color: rgba(107,140,206,0.55);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+          ">
+            → explore the rooms
+            <span
+              data-goto="rooms"
+              style="cursor:pointer; text-decoration: underline; text-underline-offset: 3px;"
+              tabindex="0"
+              role="button"
+              aria-label="Go to rooms"
+            >&nbsp;rooms ↗</span>
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAGE: ROOMS ────────────────────────────────────────── -->
+    <div id="page-rooms" class="page" role="region" aria-label="The Rooms">
+
+      <!-- System label (internal CSS class, unique to this page) -->
+      <span class="rooms-system-label" aria-hidden="true">SYS::ROOMS // SELECT ENTRY</span>
+
+      <!-- ── STATE 1: CRT MONITOR (full viewport centered) ── -->
+      <div id="crt-state" class="crt-state rooms-page-inner"
+           role="button" tabindex="0"
+           aria-label="Click to enter the rooms">
+
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div class="crt-monitor" aria-hidden="true">
+            <div class="crt-screen">
+              <div class="crt-content">
+                <span class="enter-text">ENTER?</span><span class="enter-cur">_</span>
+              </div>
+            </div>
+            <div class="crt-bezel-bar">
+              <div class="crt-led"></div>
+              <div class="crt-speakers">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+          <div class="crt-neck" aria-hidden="true"></div>
+          <div class="crt-base"  aria-hidden="true"></div>
+          <p class="crt-hint">click to enter</p>
+        </div>
+      </div>
+
+      <!-- ── STATE 2: DOORS ── -->
+      <div id="doors-state"
+           style="display:none; padding: calc(var(--nav-height) + 48px) 40px 80px;"
+           role="region" aria-label="Choose a room">
+
+        <div style="display:flex; flex-direction:column; align-items:center; max-width:1280px; margin:0 auto;">
+
+          <p class="rooms-eyebrow stagger" style="animation-delay: 0.05s;">choose your room</p>
+
+          <div class="doors-grid" role="list">
+
+            <button class="door-card stagger" data-room="studio"
+                    style="animation-delay: 0.12s;"
+                    aria-label="The Studio — video content">
+              <div class="door-visual"><div class="door-handle" aria-hidden="true"></div></div>
+              <span class="door-label">The Studio</span>
+            </button>
+
+            <button class="door-card stagger" data-room="library"
+                    style="animation-delay: 0.24s;"
+                    aria-label="The Library — written content">
+              <div class="door-visual"><div class="door-handle" aria-hidden="true"></div></div>
+              <span class="door-label">The Library</span>
+            </button>
+
+            <button class="door-card stagger" data-room="living-room"
+                    style="animation-delay: 0.36s;"
+                    aria-label="The Living Room — podcasts">
+              <div class="door-visual"><div class="door-handle" aria-hidden="true"></div></div>
+              <span class="door-label">The Living Room</span>
+            </button>
+
+            <button class="door-card stagger" data-room="basement"
+                    style="animation-delay: 0.48s;"
+                    aria-label="The Basement — founder stories">
+              <div class="door-visual"><div class="door-handle" aria-hidden="true"></div></div>
+              <span class="door-label">The Basement</span>
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAGE: ROOM — THE STUDIO ────────────────────────────── -->
+    <div id="page-room-studio" class="page" role="region" aria-label="The Studio">
+      <div class="container pt-nav pb-xl">
+
+        <button class="back-link stagger" style="animation-delay: 0.05s;" aria-label="Back to rooms">
+          back to rooms
+        </button>
+
+        <div class="room-layout">
+          <div class="room-door-col stagger" style="animation-delay: 0.15s;">
+            <div class="room-door" aria-hidden="true">
+              <div class="door-handle"></div>
+            </div>
+          </div>
+          <div class="room-content stagger" style="animation-delay: 0.28s;">
+            <h1 class="room-title">the studio</h1>
+            <p class="room-tagline">Where creativity meets videography.</p>
+            <div class="room-description">
+              <p>This is where ideas turn into visuals. long-form, short-form, and everything in between.</p>
+              <p>This room focuses on video content and visual storytelling.</p>
+            </div>
+            <div style="margin-top: 28px;">
+              <!-- Inline style for exact tag layout -->
+              <span class="room-tag">video</span>
+              <span class="room-tag">visual</span>
+              <span class="room-tag">long-form</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PAGE: ROOM — THE LIBRARY ───────────────────────────── -->
+    <div id="page-room-library" class="page" role="region" aria-label="The Library">
+      <div class="container pt-nav pb-xl">
+
+        <button class="back-link stagger" style="animation-delay: 0.05s;" aria-label="Back to rooms">
+          back to rooms
+        </button>
+
+        <div class="room-layout">
+          <div class="room-door-col stagger" style="animation-delay: 0.15s;">
+            <div class="room-door" aria-hidden="true">
+              <div class="door-handle"></div>
+            </div>
+          </div>
+          <div class="room-content stagger" style="animation-delay: 0.28s;">
+            <h1 class="room-title">the library</h1>
+            <p class="room-tagline">Where ideas slow down and thinking goes deeper.</p>
+            <div class="room-description">
+              <p>This is where thoughts turn into words. essays, reflections, analysis, and long-form writing that delve deeper into ideas.</p>
+              <p>This room focuses on written work and intentional thinking.</p>
+            </div>
+            <div style="margin-top: 28px;">
+              <span class="room-tag">writing</span>
+              <span class="room-tag">essays</span>
+              <span class="room-tag">analysis</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PAGE: ROOM — THE LIVING ROOM ──────────────────────── -->
+    <div id="page-room-living-room" class="page" role="region" aria-label="The Living Room">
+      <div class="container pt-nav pb-xl">
+
+        <button class="back-link stagger" style="animation-delay: 0.05s;" aria-label="Back to rooms">
+          back to rooms
+        </button>
+
+        <div class="room-layout">
+          <div class="room-door-col stagger" style="animation-delay: 0.15s;">
+            <div class="room-door" aria-hidden="true">
+              <div class="door-handle"></div>
+            </div>
+          </div>
+          <div class="room-content stagger" style="animation-delay: 0.28s;">
+            <h1 class="room-title">the living room</h1>
+            <p class="room-tagline">Where conversations are sparked and ideas are explained.</p>
+            <div class="room-description">
+              <p>This is where the conversation starts. from big ideas to quiet thoughts.</p>
+              <p>This room focuses on discussions, reflections and connections in real time via podcasts.</p>
+            </div>
+            <div style="margin-top: 28px;">
+              <span class="room-tag">podcasts</span>
+              <span class="room-tag">conversations</span>
+              <span class="room-tag">audio</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PAGE: ROOM — THE BASEMENT ─────────────────────────── -->
+    <div id="page-room-basement" class="page" role="region" aria-label="The Basement">
+      <div class="container pt-nav pb-xl">
+
+        <button class="back-link stagger" style="animation-delay: 0.05s;" aria-label="Back to rooms">
+          back to rooms
+        </button>
+
+        <div class="room-layout">
+          <div class="room-door-col stagger" style="animation-delay: 0.15s;">
+            <div class="room-door" aria-hidden="true">
+              <div class="door-handle"></div>
+            </div>
+          </div>
+          <div class="room-content stagger" style="animation-delay: 0.28s;">
+            <h1 class="room-title">the basement</h1>
+            <p class="room-tagline">Where the behind-the-scenes of ideas, finished and unfinished, come to life.</p>
+            <div class="room-description">
+              <p>This is where you find out more about what people are building.</p>
+              <p>This room focuses on the highs and lows of the founder life: what worked and what went wrong.</p>
+            </div>
+            <div style="margin-top: 28px;">
+              <span class="room-tag">founders</span>
+              <span class="room-tag">startups</span>
+              <span class="room-tag">raw</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PAGE: TEAM ──────────────────────────────────────────── -->
+    <div id="page-team" class="page" role="region" aria-label="Meet the team">
+      <div class="container pt-nav pb-xl">
+
+        <div class="stagger" style="animation-delay: 0.05s;">
+          <p class="team-header-meta">the people behind it</p>
+          <h1 class="page-label" style="margin-bottom: 40px;">meet the team</h1>
+        </div>
+
+        <!--
+          Team grid — 12 placeholder cards
+          Inline animation-delay on each card for stagger effect
+        -->
+        <div class="team-grid" role="list">
+
+          <article class="team-card stagger" style="animation-delay: 0.10s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">founder</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.17s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">creative director</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.24s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">editor</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.31s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">studio lead</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.38s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">writer</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.45s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">podcast host</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.52s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">video editor</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.59s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">social strategy</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.66s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">researcher</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.73s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">photographer</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.80s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">brand design</p>
+          </article>
+
+          <article class="team-card stagger" style="animation-delay: 0.87s;" role="listitem">
+            <div class="team-photo" aria-label="Team member photo placeholder">
+              <div class="team-photo-placeholder"></div>
+            </div>
+            <p class="team-name">[coming soon]</p>
+            <p class="team-role">operations</p>
+          </article>
+
+        </div>
+
+        <!-- Inline style: unique positioning/sizing for this one element -->
+        <p style="
+          margin-top: 56px;
+          font-family: var(--font-mono);
+          font-size: 0.8rem;
+          color: rgba(232,228,223,0.3);
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+        " class="stagger" style="animation-delay: 0.92s;">
+          want to join? &nbsp;—&nbsp;
+          <span
+            data-goto="apply"
+            style="color: var(--accent); cursor: pointer; opacity: 0.7; text-decoration: underline; text-underline-offset: 3px;"
+            tabindex="0"
+            role="button"
+            aria-label="Go to apply page"
+          >apply now ↗</span>
+        </p>
+
+      </div>
+    </div>
+
+    <!-- ── PAGE: APPLY ─────────────────────────────────────────── -->
+    <div id="page-apply" class="page" role="region" aria-label="Apply to (un)announced.">
+      <div class="container pt-nav pb-xl">
+        <div class="apply-wrap">
+
+          <div class="stagger" style="animation-delay: 0.05s;">
+            <h1 class="apply-title">apply</h1>
+            <p class="apply-subtitle">
+              think you belong here?<br>
+              we're always looking for builders, creators, and thinkers.
+            </p>
+          </div>
+
+          <div id="apply-form-wrap" class="stagger" style="animation-delay: 0.18s;">
+            <form class="apply-form" id="apply-form" novalidate autocomplete="off">
+
+              <div class="form-field">
+                <label class="form-label" for="apply-name">Name</label>
+                <input
+                  class="form-input"
+                  type="text"
+                  id="apply-name"
+                  name="name"
+                  placeholder="your name"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="apply-email">Email</label>
+                <input
+                  class="form-input"
+                  type="email"
+                  id="apply-email"
+                  name="email"
+                  placeholder="your@email.com"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="apply-creates">What do you create?</label>
+                <input
+                  class="form-input"
+                  type="text"
+                  id="apply-creates"
+                  name="creates"
+                  placeholder="video, writing, podcasts, design..."
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="apply-link">Link to your work</label>
+                <!-- inline style: slightly dimmed placeholder -->
+                <input
+                  class="form-input"
+                  type="url"
+                  id="apply-link"
+                  name="link"
+                  placeholder="portfolio, socials, anything"
+                  style="font-size: 0.9rem;"
+                />
+              </div>
+
+              <div class="form-field">
+                <label class="form-label" for="apply-why">Why (un)announced?</label>
+                <textarea
+                  class="form-textarea"
+                  id="apply-why"
+                  name="why"
+                  placeholder="tell us what draws you here..."
+                  required
+                  aria-required="true"
+                ></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="submit-btn">submit</button>
+              </div>
+
+            </form>
+          </div>
+
+          <!-- Success message (shown after submit) -->
+          <div id="apply-success" class="success-msg" role="status" aria-live="polite">
+            <p class="success-accent">// received</p>
+            <p>thanks for applying.<br>we'll be in touch.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main><!-- /#main-content -->
+
+  <!-- ── EXTERNAL JS ──────────────────────────────────────────── -->
+  <script src="app.js"></script>
+
+  <!-- ── INLINE SCRIPT: concept page rooms link ───────────────── -->
+  <!-- Wires the inline "rooms ↗" text link on the concept page.
+       Kept inline because it's a one-liner tied to a specific element. -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-goto]').forEach(el => {
+        el.addEventListener('click', () => {
+          const target = el.getAttribute('data-goto');
+          if (target && window.__navigate) window.__navigate(target);
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>
