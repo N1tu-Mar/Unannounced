@@ -990,6 +990,19 @@ body::after {
 }
 .success-msg.visible { display: block; }
 
+/* Form error message */
+.apply-error {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: #c97070;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  padding: 10px 12px;
+  border-left: 2px solid rgba(201,112,112,0.4);
+}
+
 .success-accent {
   color: var(--accent);
   font-size: 0.8rem;
